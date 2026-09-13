@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Average Calculator · HCP</title>
+<style>
+  :root {
+    --cream: #faf6ee;
+    --cream-deep: #f2ead8;
+    --cream-line: #e6dcc4;
+    --gold: #b8942e;
+    --gold-dark: #8f7220;
+    --gold-light: #d4b45a;
+    --gold-soft: #f3e9c8;
+    --ink: #2b2417;
+    --ink-soft: #5c5038;
+    --ink-light: #8a7a58;
+    --white: #fffdf8;
+    --whatsapp: #25d366;
+    --whatsapp-dark: #128c7e;
+    --btn-height: 46px;
+  }
+
+  * { box-sizing: border-box; font-family: 'Georgia', 'Times New Roman', serif; margin: 0; padding: 0; }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 10%, rgba(212,180,90,0.12) 0%, transparent 55%),
+      radial-gradient(circle at 85% 90%, rgba(184,148,46,0.10) 0%, transparent 50%),
+      linear-gradient(160deg, #fdfaf3 0%, #f7f0e0 60%, #f0e6d0 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2.5rem 1rem;
+    color: var(--ink);
+  }
+
+  .card {
+    max-width: 1280px;
+    width: 100%;
+    background: linear-gradient(180deg, var(--white) 0%, var(--cream) 100%);
+    border-radius: 1.5rem;
+    border: 1px solid var(--cream-line);
+    box-shadow:
+      0 30px 60px -20px rgba(90,70,20,0.25),
+      0 0 0 1px rgba(255,255,255,0.6) inset,
+      0 1px 0 rgba(255,255,255,0.9) inset;
+    padding: 2.5rem 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5px;
+    background: linear-gradient(90deg,
+      var(--gold-dark) 0%,
+      var(--gold-light) 25%,
+      var(--gold) 50%,
+      var(--gold-light) 75%,
+      var(--gold-dark) 100%);
+  }
+
+  /* ============ HEADER (title + credit) ============ */
+  .header-bar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    margin-bottom: 1.6rem;
+  }
+
+  h1 {
+    font-size: 2.3rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: 'Georgia', serif;
+  }
+
+  h1::after {
+    content: '⛳';
+    font-size: 1.9rem;
+    filter: drop-shadow(0 3px 3px rgba(90,70,20,0.25));
+  }
+
+  .credit {
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    letter-spacing: 0.03em;
+    padding: 0.35rem 0.9rem;
+    background: linear-gradient(90deg, var(--gold-soft) 0%, transparent 100%);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    white-space: nowrap;
+  }
+
+  .credit strong {
+    color: var(--gold-dark);
+    font-weight: 700;
+    font-style: normal;
+    letter-spacing: 0.04em;
+  }
+
+  /* ============ TABLE ============ */
+  .table {
+    border-radius: 1rem;
+    overflow: hidden;
+    border: 1px solid var(--gold);
+    box-shadow:
+      0 12px 28px -14px rgba(90,70,20,0.35),
+      0 0 0 1px rgba(255,255,255,0.5) inset;
+    background: var(--white);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 2fr 0.9fr 0.9fr 0.9fr 1fr 1.1fr 1.1fr;
+    gap: 8px;
+    padding: 0.7rem 1rem;
+    align-items: center;
+  }
+
+  .header {
+    background: linear-gradient(180deg, #3d331b 0%, #2b2417 100%);
+    color: var(--gold-soft);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 1rem 1rem;
+    border-bottom: 2px solid var(--gold);
+    font-family: 'Georgia', serif;
+  }
+
+  .header > span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .header .hcp-percent-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .header .hcp-percent-wrap label {
+    font-size: 0.68rem;
+    color: var(--gold-light);
+    letter-spacing: 0.1em;
+  }
+
+  select.global-percent {
+    flex: 1;
+    min-width: 0;
+    padding: 0.4rem 1.5rem 0.4rem 0.6rem;
+    border-radius: 8px;
+    border: 1.5px solid var(--gold);
+    background-color: var(--cream);
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b8942e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    outline: none;
+    font-family: 'Georgia', serif;
+    transition: 0.15s;
+  }
+
+  select.global-percent:hover {
+    background-color: var(--gold-soft);
+    border-color: var(--gold-dark);
+  }
+
+  select.global-percent:focus {
+    border-color: var(--gold-dark);
+    box-shadow: 0 0 0 3px rgba(184,148,46,0.25);
+  }
+
+  .player-row {
+    border-bottom: 1px solid var(--cream-line);
+    background: var(--white);
+    transition: background 0.18s;
+  }
+
+  .player-row:nth-child(even) { background: #fefbf5; }
+  .player-row:last-child { border-bottom: none; }
+  .player-row:hover { background: var(--gold-soft); }
+
+  input, select {
+    width: 100%;
+    padding: 0.65rem 0.6rem;
+    border: 1.5px solid var(--cream-line);
+    border-radius: 10px;
+    font-size: 0.92rem;
+    background: var(--white);
+    font-weight: 500;
+    color: var(--ink);
+    text-align: center;
+    outline: none;
+    font-family: 'Georgia', serif;
+    transition: 0.15s;
+  }
+
+  input:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,148,46,0.18);
+    background: #fffefb;
+  }
+
+  input[type="text"] { text-align: left; letter-spacing: 0.01em; }
+  input[type="number"] { -moz-appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+  input[readonly] { cursor: default; pointer-events: none; }
+
+  input.average-field {
+    background: linear-gradient(180deg, #fdf6e3 0%, #f7eccd 100%);
+    border-color: var(--gold-light);
+    font-weight: 700;
+    color: var(--gold-dark);
+  }
+
+  input.final-field {
+    background: linear-gradient(180deg, #2b2417 0%, #3d331b 100%);
+    border-color: var(--gold-dark);
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.02em;
+  }
+
+  select.percent-select {
+    background: linear-gradient(180deg, #fdf6e3 0%, #f7eccd 100%);
+    border-color: var(--gold-light);
+    font-weight: 700;
+    color: var(--gold-dark);
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b8942e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.55rem center;
+    padding-right: 1.6rem;
+    text-align: left;
+    padding-left: 0.7rem;
+  }
+
+  /* ============ BUTTON ROW: all aligned under columns ============ */
+  .button-row {
+    display: grid;
+    grid-template-columns: 2fr 0.9fr 0.9fr 0.9fr 1fr 1.1fr 1.1fr;
+    gap: 8px;
+    padding: 1rem 1rem 0.4rem;
+    align-items: center;
+    background: linear-gradient(180deg, transparent 0%, rgba(243,233,200,0.35) 100%);
+  }
+
+  .btn-col-1 { grid-column: 1 / 2; }
+  .btn-col-2 { grid-column: 2 / 3; }
+  .btn-col-4 { grid-column: 4 / 5; }
+  .btn-col-5 { grid-column: 5 / 6; }
+  .btn-col-6 { grid-column: 6 / 7; }
+  .btn-col-7 { grid-column: 7 / 8; }
+
+  /* ============ BUTTONS ============ */
+  .btn {
+    background: linear-gradient(180deg, #fffdf8 0%, var(--cream) 100%);
+    border: 1.5px solid var(--gold);
+    padding: 0 0.4rem;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 0.72rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    color: var(--gold-dark);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: 'Georgia', serif;
+    box-shadow: 0 2px 4px rgba(90,70,20,0.08);
+    width: 100%;
+    min-width: 0;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    height: var(--btn-height);
+    min-height: var(--btn-height);
+    max-height: var(--btn-height);
+    line-height: 1;
+  }
+
+  .btn:hover {
+    background: linear-gradient(180deg, var(--gold-soft) 0%, #ecdfb5 100%);
+    border-color: var(--gold-dark);
+    color: var(--ink);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 16px -8px rgba(90,70,20,0.35);
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(90,70,20,0.15);
+  }
+
+  .btn-primary {
+    background: linear-gradient(180deg, #3d331b 0%, #2b2417 100%);
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(180deg, #4a3d21 0%, #362d1c 100%);
+    border-color: var(--gold-light);
+    color: var(--gold-soft);
+    box-shadow: 0 8px 18px -8px rgba(90,70,20,0.6);
+  }
+
+  .btn-success {
+    background: linear-gradient(180deg, var(--gold-light) 0%, var(--gold) 100%);
+    border-color: var(--gold-dark);
+    color: #2b2417;
+  }
+
+  .btn-success:hover {
+    background: linear-gradient(180deg, #e0c26d 0%, var(--gold-light) 100%);
+    border-color: var(--gold-dark);
+    color: var(--ink);
+    box-shadow: 0 8px 18px -8px rgba(184,148,46,0.65);
+  }
+
+  .btn-whatsapp {
+    background: linear-gradient(180deg, #2ee06f 0%, var(--whatsapp) 100%);
+    border-color: var(--whatsapp-dark);
+    color: #ffffff;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+  }
+
+  .btn-whatsapp:hover {
+    background: linear-gradient(180deg, #3eee7c 0%, #1fc25c 100%);
+    border-color: var(--whatsapp-dark);
+    color: #ffffff;
+    box-shadow: 0 8px 18px -8px rgba(37,211,102,0.7);
+  }
+
+  .btn-danger {
+    background: linear-gradient(180deg, #fffdf8 0%, #f5e8e0 100%);
+    border-color: #c9a68a;
+    color: #8a4a2a;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(180deg, #f5e8e0 0%, #eed6c4 100%);
+    border-color: #a87850;
+    color: #6d3418;
+    box-shadow: 0 8px 16px -8px rgba(140,90,50,0.4);
+  }
+
+  .btn-clear { grid-column: 3 / 4; }
+
+  .btn-recalc {
+    font-size: 0.68rem;
+    letter-spacing: 0;
+  }
+
+  /* ============ INFO COMMENT (below buttons) ============ */
+  .info-comment {
+    margin: 1.4rem auto 0;
+    max-width: 1050px;
+    padding: 1rem 1.4rem;
+    background: linear-gradient(180deg, #fdf6e3 0%, #f7eccd 100%);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 12px 12px 0;
+    color: var(--ink-soft);
+    font-size: 0.88rem;
+    font-style: italic;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+    text-align: center;
+    box-shadow: 0 4px 12px -6px rgba(90,70,20,0.18);
+  }
+
+  .info-comment::before {
+    content: '💡 ';
+    color: var(--gold-dark);
+    font-style: normal;
+    font-weight: 700;
+  }
+
+  /* ============ FOOTER NOTE ============ */
+  .note {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 1.6rem;
+    text-align: center;
+    border-top: 1px solid var(--cream-line);
+    padding-top: 1.4rem;
+    letter-spacing: 0.02em;
+    font-style: italic;
+  }
+
+  .note::before {
+    content: '⛳ ';
+    color: var(--gold);
+    font-style: normal;
+  }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: linear-gradient(180deg, #3d331b 0%, #2b2417 100%);
+    color: var(--gold-light);
+    padding: 0.85rem 1.6rem;
+    border-radius: 40px;
+    border: 1.5px solid var(--gold);
+    font-size: 0.88rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    box-shadow: 0 15px 30px -10px rgba(90,70,20,0.5);
+    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
+    pointer-events: none;
+    font-family: 'Georgia', serif;
+    max-width: 90vw;
+    text-align: center;
+  }
+
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1100px) {
+    :root { --btn-height: 44px; }
+    .btn-recalc { font-size: 0.62rem; letter-spacing: 0; }
+  }
+
+  @media (max-width: 900px) {
+    :root { --btn-height: 42px; }
+    .row, .button-row {
+      grid-template-columns: 1.8fr 0.8fr 0.8fr 0.8fr 1fr 1fr 1fr;
+      padding: 0.6rem 0.5rem;
+      gap: 5px;
+    }
+    .header { font-size: 0.68rem; letter-spacing: 0.08em; }
+    input, select { padding: 0.5rem 0.3rem; font-size: 0.78rem; }
+    .btn { font-size: 0.6rem; letter-spacing: 0; }
+    .btn-recalc { font-size: 0.55rem; }
+    .credit { font-size: 0.82rem; }
+    .info-comment { font-size: 0.82rem; padding: 0.9rem 1.1rem; }
+  }
+
+  @media (max-width: 720px) {
+    :root { --btn-height: 40px; }
+    .card { padding: 1.6rem 1rem 1.4rem; }
+    .row, .button-row {
+      grid-template-columns: 1.5fr 0.7fr 0.7fr 0.7fr 0.9fr 0.9fr 0.9fr;
+      padding: 0.5rem 0.3rem;
+      gap: 3px;
+    }
+    .header { font-size: 0.6rem; padding: 0.75rem 0.3rem; letter-spacing: 0.05em; }
+    input, select { padding: 0.4rem 0.15rem; font-size: 0.68rem; border-radius: 7px; }
+    .btn {
+      font-size: 0.55rem;
+      letter-spacing: 0;
+      border-radius: 7px;
+      white-space: normal;
+      line-height: 1.1;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+    .btn-recalc { font-size: 0.5rem; }
+    h1 { font-size: 1.6rem; }
+    .header-bar { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .credit { font-size: 0.75rem; padding: 0.25rem 0.7rem; }
+    .header .hcp-percent-wrap label { display: none; }
+    .info-comment { font-size: 0.75rem; padding: 0.8rem 0.9rem; margin-top: 1.1rem; }
+    .note { font-size: 0.72rem; }
+  }
+</style>
+</head>
+<body>
+  <div class="card">
+
+    <!-- HEADER: title + credit -->
+    <div class="header-bar">
+      <h1>Average Calculator</h1>
+      <div class="credit">by <strong>Kamal Dhunna</strong></div>
+    </div>
+
+    <div class="table">
+      <div class="row header">
+        <span>Player Names</span>
+        <span>HCP 1</span>
+        <span>HCP 2</span>
+        <span>HCP 3</span>
+        <span>Average HCP</span>
+        <span>
+          <div class="hcp-percent-wrap">
+            <label for="globalPercent">HCP&nbsp;%</label>
+            <select id="globalPercent" class="global-percent" title="Set HCP % for all players"></select>
+          </div>
+        </span>
+        <span>Final HCP</span>
+      </div>
+
+      <div id="rowsContainer"></div>
+
+      <div class="button-row">
+        <button class="btn btn-col-1" id="addBtn" title="Add a new player row">➕ Add row</button>
+        <button class="btn btn-col-2" id="removeBtn" title="Remove last player row">✖ Remove</button>
+        <button class="btn btn-danger btn-clear" id="clearBtn" title="Reset the table">🗑 Clear All</button>
+        <span class="btn-col-4"></span>
+        <button class="btn btn-primary btn-col-5 btn-recalc" id="recalcBtn" title="Recalculate averages">⟳ Recalc</button>
+        <button class="btn btn-whatsapp btn-col-6" id="shareBtn" title="Share to WhatsApp">📱 Share</button>
+        <button class="btn btn-success btn-col-7" id="calcBtn" title="Apply HCP % to Average HCP">📊 Calculate</button>
+      </div>
+    </div>
+
+    <!-- COMMENT BELOW BUTTONS -->
+    <div class="info-comment">
+      Playing on reciprocal courses the fairest way to assign a playing HCP's to players is to provide an Average from LGC, PGA, Other Societies.
+    </div>
+
+    <div class="note">The Average HCP is computed only from the HCP fields you fill in. Empty or zero fields are skipped.</div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  const DEFAULT_ROWS = 3;
+  const MAX_ROWS = 30;
+  const DEFAULT_PERCENT = 100;
+  const DEFAULT_HCP = 0;
+
+  const rowsContainer = document.getElementById('rowsContainer');
+  const globalPercent = document.getElementById('globalPercent');
+  const toastEl = document.getElementById('toast');
+
+  /* ---------- TOAST ---------- */
+  let toastTimer = null;
+  function showToast(msg, duration = 2800) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), duration);
+  }
+
+  /* ---------- PERCENT OPTIONS ---------- */
+  function getPercentOptions() {
+    const opts = [];
+    for (let p = 50; p <= 100; p += 5) opts.push(p);
+    return opts;
+  }
+
+  function populateGlobalPercent() {
+    globalPercent.innerHTML = '';
+    getPercentOptions().forEach(p => {
+      const o = document.createElement('option');
+      o.value = p; o.textContent = p + '%';
+      if (p === DEFAULT_PERCENT) o.selected = true;
+      globalPercent.appendChild(o);
+    });
+  }
+
+  /* ---------- ROW CREATION ---------- */
+  function createRow(name = '', h1 = DEFAULT_HCP, h2 = DEFAULT_HCP, h3 = DEFAULT_HCP, pct = DEFAULT_PERCENT) {
+    const row = document.createElement('div');
+    row.className = 'row player-row';
+
+    const nameI = document.createElement('input');
+    nameI.type = 'text'; nameI.placeholder = 'e.g. Tiger Woods'; nameI.value = name;
+    nameI.className = 'player-name';
+
+    const h1I = document.createElement('input');
+    h1I.type = 'number'; h1I.step = '0.1'; h1I.min = '0'; h1I.value = h1;
+    h1I.className = 'hcp-input';
+
+    const h2I = document.createElement('input');
+    h2I.type = 'number'; h2I.step = '0.1'; h2I.min = '0'; h2I.value = h2;
+    h2I.className = 'hcp-input';
+
+    const h3I = document.createElement('input');
+    h3I.type = 'number'; h3I.step = '0.1'; h3I.min = '0'; h3I.value = h3;
+    h3I.className = 'hcp-input';
+
+    const avgI = document.createElement('input');
+    avgI.type = 'text'; avgI.readOnly = true; avgI.value = '0.00';
+    avgI.className = 'average-field'; avgI.tabIndex = -1;
+
+    const pctI = document.createElement('select');
+    pctI.className = 'percent-select';
+    getPercentOptions().forEach(p => {
+      const o = document.createElement('option');
+      o.value = p; o.textContent = p + '%';
+      if (p === pct) o.selected = true;
+      pctI.appendChild(o);
+    });
+
+    const finI = document.createElement('input');
+    finI.type = 'text'; finI.readOnly = true; finI.value = '—';
+    finI.className = 'final-field'; finI.tabIndex = -1;
+
+    row.append(nameI, h1I, h2I, h3I, avgI, pctI, finI);
+
+    [h1I, h2I, h3I].forEach(inp => inp.addEventListener('input', recalcAll));
+    return row;
+  }
+
+  /* ---------- CALCULATION ---------- */
+  function validNum(v) {
+    if (v === '' || v === null || v === undefined) return null;
+    const n = Number(v);
+    if (!isFinite(n) || isNaN(n) || n <= 0) return null;
+    return n;
+  }
+
+  function rowAverage(h1, h2, h3) {
+    const vals = [h1, h2, h3].map(validNum).filter(v => v !== null);
+    if (vals.length === 0) return 0;
+    const sum = vals.reduce((a, b) => a + b, 0);
+    return sum / vals.length;
+  }
+
+  function updateRow(row) {
+    const inputs = row.querySelectorAll('input');
+    if (inputs.length < 6) return 0;
+    const avg = rowAverage(inputs[1].value, inputs[2].value, inputs[3].value);
+    inputs[4].value = avg.toFixed(2);
+    return avg;
+  }
+
+  function recalcAll() {
+    rowsContainer.querySelectorAll('.player-row').forEach(updateRow);
+  }
+
+  function applyPercent() {
+    rowsContainer.querySelectorAll('.player-row').forEach(row => {
+      const inputs = row.querySelectorAll('input');
+      const sel = row.querySelector('.percent-select');
+      if (!sel || inputs.length < 6) return;
+      const avg = updateRow(row);
+      const pct = parseFloat(sel.value);
+      if (isNaN(pct)) return;
+      inputs[5].value = (avg * pct / 100).toFixed(2);
+    });
+    showToast('✅ Final HCP calculated for all players');
+  }
+
+  function setAllPercents(pct) {
+    rowsContainer.querySelectorAll('.percent-select').forEach(s => s.value = pct);
+  }
+
+  /* ---------- ROW ACTIONS ---------- */
+  function addRow() {
+    if (rowsContainer.children.length >= MAX_ROWS) return showToast('⚠️ Maximum rows reached');
+    const pct = parseFloat(globalPercent.value) || DEFAULT_PERCENT;
+    const r = createRow('', DEFAULT_HCP, DEFAULT_HCP, DEFAULT_HCP, pct);
+    rowsContainer.appendChild(r);
+    recalcAll();
+  }
+
+  function removeRow() {
+    if (rowsContainer.children.length <= 1) return showToast('⚠️ At least one row required');
+    rowsContainer.removeChild(rowsContainer.lastElementChild);
+    recalcAll();
+  }
+
+  function initRows() {
+    rowsContainer.innerHTML = '';
+    for (let i = 0; i < DEFAULT_ROWS; i++) {
+      rowsContainer.appendChild(createRow('', DEFAULT_HCP, DEFAULT_HCP, DEFAULT_HCP, DEFAULT_PERCENT));
+    }
+    recalcAll();
+  }
+
+  function clearAll() {
+    globalPercent.value = DEFAULT_PERCENT;
+    initRows();
+    showToast('🧹 Table reset to defaults');
+  }
+
+  /* ---------- SHARE TO WHATSAPP ---------- */
+  function shareToWhatsApp() {
+    const rows = rowsContainer.querySelectorAll('.player-row');
+    if (rows.length === 0) {
+      showToast('⚠️ No players to share');
+      return;
+    }
+
+    const lines = [];
+    lines.push('⛳ *AVERAGE HCP REPORT* ⛳');
+    lines.push('_by Kamal Dhunna_');
+    lines.push('━━━━━━━━━━━━━━━━━━━');
+    lines.push('');
+
+    let playerCount = 0;
+
+    rows.forEach((row, idx) => {
+      const inputs = row.querySelectorAll('input');
+      const select = row.querySelector('.percent-select');
+      if (inputs.length < 6) return;
+
+      const name = inputs[0].value.trim() || `Player ${idx + 1}`;
+      const hcp1 = inputs[1].value || '0';
+      const hcp2 = inputs[2].value || '0';
+      const hcp3 = inputs[3].value || '0';
+      const avg = inputs[4].value || '0.00';
+      const pct = select ? select.value + '%' : '100%';
+      const final = inputs[5].value || '—';
+
+      playerCount++;
+      lines.push(`*${playerCount}. ${name}*`);
+      lines.push(`   • HCP 1: ${hcp1}`);
+      lines.push(`   • HCP 2: ${hcp2}`);
+      lines.push(`   • HCP 3: ${hcp3}`);
+      lines.push(`   • Average HCP: ${avg}`);
+      lines.push(`   • HCP %: ${pct}`);
+      lines.push(`   • *Final HCP: ${final}*`);
+      lines.push('');
+    });
+
+    lines.push('━━━━━━━━━━━━━━━━━━━');
+    lines.push(`📊 Total Players: ${playerCount}`);
+    lines.push('');
+    lines.push('_Generated by Average Calculator_');
+
+    const message = lines.join('\n');
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+
+    const newWindow = window.open(whatsappUrl, '_blank');
+
+    if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+      showToast('⚠️ Popup blocked — opening directly');
+      window.location.href = whatsappUrl;
+    } else {
+      showToast('📱 Opening WhatsApp — choose your group');
+    }
+  }
+
+  /* ---------- WIRE UP ---------- */
+  populateGlobalPercent();
+  initRows();
+
+  globalPercent.addEventListener('change', e => setAllPercents(parseFloat(e.target.value)));
+  document.getElementById('calcBtn').addEventListener('click', applyPercent);
+  document.getElementById('recalcBtn').addEventListener('click', recalcAll);
+  document.getElementById('addBtn').addEventListener('click', addRow);
+  document.getElementById('removeBtn').addEventListener('click', removeRow);
+  document.getElementById('clearBtn').addEventListener('click', clearAll);
+  document.getElementById('shareBtn').addEventListener('click', shareToWhatsApp);
+})();
+</script>
+</body>
+</html>
