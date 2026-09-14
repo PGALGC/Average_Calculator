@@ -571,7 +571,7 @@
   /* ---------- PERCENT OPTIONS ---------- */
   function getPercentOptions() {
     const opts = [];
-    for (let p = 50; p <= 100; p += 5) opts.push(p);
+    for (let p = 100; p >= 0; p -= 5) opts.push(p);
     return opts;
   }
 
